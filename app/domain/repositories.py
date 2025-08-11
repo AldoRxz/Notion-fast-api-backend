@@ -1,1 +1,38 @@
-# Repositories for domain layer
+from typing import Protocol, Sequence
+import uuid
+from app.infrastructure.db.models import User, Workspace, WorkspaceMember, Page, PageContent
+
+
+class UserRepository(Protocol):
+	async def get_by_email(self, email: str) -> User | None: ...
+	async def add(self, user: User) -> None: ...
+
+
+class WorkspaceRepository(Protocol):
+	async def add(self, ws: Workspace) -> None: ...
+	async def get(self, ws_id: uuid.UUID) -> Workspace | None: ...
+
+
+class WorkspaceMemberRepository(Protocol):
+	async def add(self, member: WorkspaceMember) -> None: ...
+	async def list_for_user(self, user_id: uuid.UUID) -> Sequence[WorkspaceMember]: ...
+
+
+class PageRepository(Protocol):
+	async def add(self, page: Page) -> None: ...
+	async def get(self, page_id: uuid.UUID) -> Page | None: ...
+
+
+class PageContentRepository(Protocol):
+	async def upsert(self, content: PageContent) -> None: ...
+	async def get_by_page(self, page_id: uuid.UUID) -> PageContent | None: ...
+
+
+class UnitOfWork(Protocol):
+	users: UserRepository
+	workspaces: WorkspaceRepository
+	workspace_members: WorkspaceMemberRepository
+	pages: PageRepository
+	page_contents: PageContentRepository
+	async def commit(self) -> None: ...
+	async def rollback(self) -> None: ...
