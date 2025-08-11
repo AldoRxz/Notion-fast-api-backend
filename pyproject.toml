@@ -1,20 +1,23 @@
-[tool.poetry]
-name = "notion-fast-api-backend"
+
+# ===========================
+# pyproject.toml
+# ===========================
+[project]
+name = "notion-local-api"
 version = "0.1.0"
-description = "Backend for a Notion-like app using FastAPI"
-authors = ["AldoRoman"]
+description = "Hexagonal FastAPI backend for a Notion-like app (Yoopta content)"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.111",
+  "uvicorn[standard]",
+  "sqlalchemy>=2.0",
+  "psycopg[binary]>=3.1",
+  "alembic>=1.13",
+  "pydantic>=2.8",
+  "pydantic-settings>=2.3",
+  "passlib[bcrypt]>=1.7",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-fastapi = "^0.110.0"
-udantic = "^2.0.0"
-uvicorn = "^0.29.0"
-SQLAlchemy = "^2.0.0"
-alembic = "^1.13.0"
-
-[tool.poetry.dev-dependencies]
-pytest = "^8.0.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.alembic]
+# let Alembic find app.infrastructure.db.base:Base
+script_location = "migrations"
