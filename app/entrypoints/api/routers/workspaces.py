@@ -4,11 +4,34 @@ from slugify import slugify
 from app.application.dto import WorkspaceCreateDTO, WorkspaceReadDTO
 from app.infrastructure.db.uow import SqlAlchemyUoW
 from app.infrastructure.db.models import Workspace, WorkspaceMember, RoleName
+<<<<<<< HEAD
 from app.core.deps import get_uow, get_current_user_id
+=======
+from app.infrastructure.security.auth import decode_access_token
+from fastapi import Header
+>>>>>>> 3ee2475d47d2e49cf5e903bc3bb216afb1e7ac28
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
 
+<<<<<<< HEAD
+=======
+async def get_uow():
+	async with SqlAlchemyUoW() as uow:
+		yield uow
+
+
+async def get_current_user_id(authorization: str | None = Header(default=None)) -> uuid.UUID:
+	if not authorization or not authorization.startswith("Bearer "):
+		raise HTTPException(status_code=401, detail="Not authenticated")
+	token = authorization.split(" ", 1)[1]
+	sub = decode_access_token(token)
+	if not sub:
+		raise HTTPException(status_code=401, detail="Invalid token")
+	return uuid.UUID(sub)
+
+
+>>>>>>> 3ee2475d47d2e49cf5e903bc3bb216afb1e7ac28
 @router.post("/", response_model=WorkspaceReadDTO)
 async def create_workspace(dto: WorkspaceCreateDTO, user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):
 	ws = Workspace(name=dto.name, slug=dto.slug or slugify(dto.name), created_by=user_id)

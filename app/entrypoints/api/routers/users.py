@@ -3,13 +3,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 import uuid
 from app.application.dto import UserRegisterDTO, UserReadDTO
 from app.infrastructure.db.uow import SqlAlchemyUoW
+<<<<<<< HEAD
 from app.core.deps import get_uow
+=======
+>>>>>>> 3ee2475d47d2e49cf5e903bc3bb216afb1e7ac28
 from app.infrastructure.db.models import User
 from app.infrastructure.security.auth import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+<<<<<<< HEAD
+=======
+async def get_uow():
+	async with SqlAlchemyUoW() as uow:
+		yield uow
+
+
+>>>>>>> 3ee2475d47d2e49cf5e903bc3bb216afb1e7ac28
 @router.post("/register", response_model=UserReadDTO)
 async def register(dto: UserRegisterDTO, uow: SqlAlchemyUoW = Depends(get_uow)):
 	existing = await uow.users.get_by_email(dto.email)
