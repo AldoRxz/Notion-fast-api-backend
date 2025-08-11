@@ -25,6 +25,7 @@ app.include_router(pages_router)
 
 @app.get("/")
 def root():
+def root():
     return {"message": "Welcome to Notion FastAPI Backend!"}
 
 
