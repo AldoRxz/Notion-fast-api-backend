@@ -3,7 +3,7 @@ import os
 import pytest
 from httpx import AsyncClient
 from fastapi import FastAPI
-from app.entrypoints.api.main import app as fastapi_app
+from app.main import app as fastapi_app
 
 @pytest.fixture(scope="session")
 def event_loop():

@@ -1,25 +1,40 @@
 version: "3.9"
+
 services:
   db:
     image: postgres:16
+    container_name: notion_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: app
       POSTGRES_DB: notion_local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5432:5432"  
+
   api:
     build: .
+    container_name: notion_api
+    restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+psycopg://app:app@db:5432/notion_local
+      DATABASE_URL: "postgresql+psycopg://app:app@db:5432/notion_local"
       SECRET_KEY: "dev-secret"
+      AUTO_MIGRATE: "true"  
+      PYTHONPATH: /app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app
+      - ./:/app  
+
 volumes:
   dbdata:

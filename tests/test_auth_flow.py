@@ -33,3 +33,12 @@ async def test_create_workspace_and_page(client):
     r3 = await client.get(f"/pages/workspace/{ws_id}", headers=headers)
     assert r3.status_code == 200
     assert any(p["id"] == page_id for p in r3.json())
+
+@pytest.mark.asyncio
+async def test_workspace_without_slug(client):
+    token = await register_and_login(client)
+    headers = {"Authorization": f"Bearer {token}"}
+    r = await client.post("/workspaces/", json={"name": "Another WS"}, headers=headers)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["slug"].startswith("another-ws")
