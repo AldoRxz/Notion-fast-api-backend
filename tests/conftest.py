@@ -1,17 +1,29 @@
 import asyncio
 import os
 import pytest
-from httpx import AsyncClient
-from fastapi import FastAPI
+import pytest_asyncio
+import httpx
 from app.main import app as fastapi_app
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.get_event_loop()
-    yield loop
+# Ensure selector loop policy on Windows for psycopg async compatibility
+if os.name == "nt" and hasattr(asyncio, "WindowsSelectorEventLoopPolicy"):
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
 
-@pytest.fixture()
+
+@pytest.fixture(scope="session")
+def event_loop():  # legacy workaround for pytest-asyncio strict mode
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest_asyncio.fixture
 async def client():
-    # assumes DB is up & migrated
-    async with AsyncClient(app=fastapi_app, base_url="http://test") as c:
-        yield c
+    # ensure migrations run on startup inside test process
+    os.environ.setdefault("AUTO_MIGRATE", "true")
+    transport = httpx.ASGITransport(app=fastapi_app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
