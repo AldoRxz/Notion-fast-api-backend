@@ -2,13 +2,9 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.db.base import async_session_maker
-from app.infrastructure.db.repositories import (
-	SQLUserRepository,
-	SQLWorkspaceRepository,
-	SQLWorkspaceMemberRepository,
-	SQLPageRepository,
-	SQLPageContentRepository,
-)
+from app.users.repository import UserRepository
+from app.workspaces.repository import WorkspaceRepository, WorkspaceMemberRepository
+from app.pages.repository import PageRepository, PageContentRepository
 
 
 class SqlAlchemyUoW:
@@ -16,19 +12,19 @@ class SqlAlchemyUoW:
 		self._session_factory = session_factory
 		self.session: AsyncSession | None = None
 		# repositories
-		self.users: SQLUserRepository
-		self.workspaces: SQLWorkspaceRepository
-		self.workspace_members: SQLWorkspaceMemberRepository
-		self.pages: SQLPageRepository
-		self.page_contents: SQLPageContentRepository
+		self.users: UserRepository
+		self.workspaces: WorkspaceRepository
+		self.workspace_members: WorkspaceMemberRepository
+		self.pages: PageRepository
+		self.page_contents: PageContentRepository
 
 	async def __aenter__(self):
 		self.session = self._session_factory()
-		self.users = SQLUserRepository(self.session)
-		self.workspaces = SQLWorkspaceRepository(self.session)
-		self.workspace_members = SQLWorkspaceMemberRepository(self.session)
-		self.pages = SQLPageRepository(self.session)
-		self.page_contents = SQLPageContentRepository(self.session)
+		self.users = UserRepository(self.session)
+		self.workspaces = WorkspaceRepository(self.session)
+		self.workspace_members = WorkspaceMemberRepository(self.session)
+		self.pages = PageRepository(self.session)
+		self.page_contents = PageContentRepository(self.session)
 		return self
 
 	async def __aexit__(self, exc_type, exc, tb):

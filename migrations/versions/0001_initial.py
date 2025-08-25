@@ -89,4 +89,4 @@ def downgrade() -> None:
     op.drop_table('users')
     sa.Enum(name='page_type').drop(op.get_bind(), checkfirst=True)
     sa.Enum(name='role_name').drop(op.get_bind(), checkfirst=True)
-*** End Patch
+    

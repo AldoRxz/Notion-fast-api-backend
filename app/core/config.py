@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     FRONTEND_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
     ENV: str = "dev"
+    AUTO_MIGRATE: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
