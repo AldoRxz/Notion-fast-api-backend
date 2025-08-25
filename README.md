@@ -60,7 +60,6 @@ FRONTEND_ORIGINS=http://localhost:5173,http://localhost:3000
 Ejecutar:
 ```
 pytest -q
-```
 
 Cobertura actual: auth flow, creación workspace (sin slug), creación/listado de páginas básicas.
 
