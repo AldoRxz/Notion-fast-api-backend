@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import select
 from app.infrastructure.db.uow import SqlAlchemyUoW
-from app.infrastructure.db.models import Page, PageContent, PageType
+from app.infrastructure.db.models import Page, PageContent
 from app.core.errors import NotFoundError, PermissionDenied
 from app.core.deps import ensure_workspace_member
 from . import schemas
@@ -9,16 +9,17 @@ from . import schemas
 async def create_page(uow: SqlAlchemyUoW, user_id: uuid.UUID, data: schemas.PageCreateIn) -> Page:
     await ensure_workspace_member(data.workspace_id, user_id, uow)
     page = Page(
+        id=uuid.uuid4(),
         workspace_id=data.workspace_id,
         parent_page_id=data.parent_page_id,
         title=data.title,
-        type=PageType(data.type),
+    type=data.type,
         created_by=user_id,
         updated_by=user_id,
     )
     await uow.pages.add(page)
     if data.content is not None:
-        content = PageContent(page=page, content=data.content, meta={}, updated_by=user_id)
+        content = PageContent(id=uuid.uuid4(), page=page, content=data.content, meta={}, updated_by=user_id)
         await uow.page_contents.upsert(content)
     await uow.commit()
     return page
@@ -51,7 +52,7 @@ async def update_page(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uuid.UUID
             existing.content = data.content
             existing.updated_by = user_id
         else:
-            await uow.page_contents.upsert(PageContent(page=page, content=data.content, meta={}, updated_by=user_id))
+            await uow.page_contents.upsert(PageContent(id=uuid.uuid4(), page=page, content=data.content, meta={}, updated_by=user_id))
     await uow.commit()
     return page
 
@@ -68,7 +69,7 @@ async def patch_page_content(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uu
             existing.content = data.content
             existing.updated_by = user_id
         else:
-            await uow.page_contents.upsert(PageContent(page=page, content=data.content, meta={}, updated_by=user_id))
+            await uow.page_contents.upsert(PageContent(id=uuid.uuid4(), page=page, content=data.content, meta={}, updated_by=user_id))
     page.updated_by = user_id
     await uow.commit()
 

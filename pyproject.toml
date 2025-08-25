@@ -2,7 +2,10 @@
 name = "notion-local-api"
 version = "0.1.0"
 description = "Hexagonal FastAPI backend for a Notion-like app (Yoopta content)"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name="Aldo"}]
 dependencies = [
   "fastapi>=0.111",
   "uvicorn[standard]",
@@ -16,7 +19,11 @@ dependencies = [
   "email-validator>=2.1",
   "python-slugify>=8.0",
   "python-dotenv>=1.0",
+  "python-multipart>=0.0.9",
 ]
+
+[tool.setuptools]
+packages = ["app"]
 
 [project.optional-dependencies]
 dev = [

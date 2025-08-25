@@ -28,16 +28,20 @@ async def root():
 
 @app.on_event("startup")
 async def run_startup_migrations_if_enabled():
-    import os
+    import os, logging, traceback
     if os.getenv("AUTO_MIGRATE", "false").lower() in {"1", "true", "yes"}:
-        import anyio
-        from alembic.config import Config
-        from alembic import command
-        cfg = Config("alembic.ini")
-        cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-        def _upgrade():
-            command.upgrade(cfg, "head")
-        await anyio.to_thread.run_sync(_upgrade)
+        try:
+            import anyio
+            from alembic.config import Config
+            from alembic import command
+            cfg = Config("alembic.ini")
+            cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+            def _upgrade():
+                command.upgrade(cfg, "head")
+            await anyio.to_thread.run_sync(_upgrade)
+            logging.getLogger(__name__).info("Startup migrations applied successfully")
+        except Exception:
+            logging.getLogger(__name__).error("Startup migration failed; continuing without blocking app.\n%s", traceback.format_exc())
 
 @app.get("/health")
 async def health():

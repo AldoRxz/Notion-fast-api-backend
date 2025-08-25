@@ -9,13 +9,13 @@ async def register_user(uow: SqlAlchemyUoW, data: schemas.UserRegisterIn) -> Use
     existing = await uow.users.get_by_email(data.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    user = User(email=data.email, password_hash=hash_password(data.password), full_name=data.full_name)
+    user = User(id=uuid.uuid4(), email=data.email.lower(), password_hash=hash_password(data.password), full_name=data.full_name)
     await uow.users.add(user)
     await uow.commit()
     return user
 
 async def login_user(uow: SqlAlchemyUoW, username: str, password: str) -> str:
-    user = await uow.users.get_by_email(username)
+    user = await uow.users.get_by_email(username.lower())
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     return create_access_token(str(user.id))
