@@ -17,19 +17,17 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # extensions (safe attempts)
-    op.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
-    op.execute('CREATE EXTENSION IF NOT EXISTS citext;')
+    # (Extensions creation removed to avoid requiring superuser in container runtime.)
+    # (Enum creation removed; using simple string columns for portability.)
 
     # enums
     role_name = sa.Enum('owner','admin','editor','commenter','viewer', name='role_name')
     page_type = sa.Enum('page','database', name='page_type')
-    role_name.create(op.get_bind(), checkfirst=True)
-    page_type.create(op.get_bind(), checkfirst=True)
+    # Enum types will be created automatically when first referenced in table DDL.
 
     op.create_table('users',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('uuid_generate_v4()')),
-        sa.Column('email', postgresql.CITEXT(), nullable=False, unique=True),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column('email', sa.String(), nullable=False, unique=True),
         sa.Column('password_hash', sa.String(), nullable=False),
         sa.Column('full_name', sa.String(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.text('TRUE')),
@@ -38,7 +36,7 @@ def upgrade() -> None:
     )
 
     op.create_table('workspaces',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('uuid_generate_v4()')),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('slug', sa.String(), nullable=False, unique=True),
         sa.Column('created_by', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
@@ -47,19 +45,19 @@ def upgrade() -> None:
     )
 
     op.create_table('workspace_members',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('uuid_generate_v4()')),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('workspace_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('workspaces.id', ondelete='CASCADE'), nullable=False),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('role', role_name, nullable=False, server_default='editor'),
+    sa.Column('role', sa.String(), nullable=False, server_default='editor'),
         sa.UniqueConstraint('workspace_id','user_id', name='uq_workspace_user')
     )
 
     op.create_table('pages',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('uuid_generate_v4()')),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('workspace_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('workspaces.id', ondelete='CASCADE'), nullable=False),
         sa.Column('parent_page_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('pages.id', ondelete='SET NULL')),
         sa.Column('title', sa.String(), nullable=False),
-        sa.Column('type', page_type, nullable=False, server_default='page'),
+    sa.Column('type', sa.String(), nullable=False, server_default='page'),
         sa.Column('icon', sa.String()),
         sa.Column('cover_url', sa.String()),
         sa.Column('is_archived', sa.Boolean(), nullable=False, server_default=sa.text('FALSE')),
@@ -70,7 +68,7 @@ def upgrade() -> None:
     )
 
     op.create_table('page_content',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('uuid_generate_v4()')),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('page_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('pages.id', ondelete='CASCADE'), unique=True, nullable=False),
         sa.Column('content', postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default=sa.text("'{}'::jsonb")),
         sa.Column('meta', postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default=sa.text("'{}'::jsonb")),
@@ -87,6 +85,5 @@ def downgrade() -> None:
     op.drop_table('workspace_members')
     op.drop_table('workspaces')
     op.drop_table('users')
-    sa.Enum(name='page_type').drop(op.get_bind(), checkfirst=True)
-    sa.Enum(name='role_name').drop(op.get_bind(), checkfirst=True)
+    # no enum types to drop now
     
