@@ -29,16 +29,16 @@ class SqlAlchemyUoW:
 
 	async def __aexit__(self, exc_type, exc, tb):
 		if exc:
-			await self.session.rollback()  # type: ignore
+			await self.session.rollback()  
 		else:
-			await self.session.commit()  # type: ignore
-		await self.session.close()  # type: ignore
+			await self.session.commit() 
+		await self.session.close()  
 
 	async def commit(self):
-		await self.session.commit()  # type: ignore
+		await self.session.commit()
 
 	async def rollback(self):
-		await self.session.rollback()  # type: ignore
+		await self.session.rollback()
 
 
 @asynccontextmanager

@@ -23,13 +23,6 @@ class TimestampMixin:
 	)
 
 
-"""Create the async SQLAlchemy engine.
-
-We keep the ``postgresql+psycopg`` driver which already supports async (psycopg3)
-instead of rewriting the URL to ``asyncpg``. The previous replacement caused a
-ModuleNotFoundError because ``asyncpg`` wasn't installed. If you prefer the
-``asyncpg`` driver, add it to dependencies and revert, but psycopg3 is fine.
-"""
 
 DATABASE_URL = settings.DATABASE_URL  # e.g. postgresql+psycopg://user:pass@host:port/db
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
