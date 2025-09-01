@@ -8,11 +8,10 @@ from app.users.router import router as users_router
 from app.workspaces.router import router as workspaces_router
 from app.pages.router import router as pages_router
 
-app = FastAPI(title="Notion-like Backend")
+app = FastAPI(title="Wiki Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    # Explicit list from settings (e.g., 5173, 3000) plus a regex to match any localhost port Vite may choose (5174, 5175, etc.)
     allow_origins=settings.origins_list,
     allow_origin_regex=r"http://localhost:\d+",
     allow_credentials=True,
@@ -26,7 +25,7 @@ app.include_router(pages_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to Notion FastAPI Backend!"}
+    return {"message": "Welcome to Wiki FastAPI Backend!"}
 
 @app.on_event("startup")
 async def run_startup_migrations_if_enabled():
