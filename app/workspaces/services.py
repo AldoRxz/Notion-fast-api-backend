@@ -18,3 +18,12 @@ async def create_workspace(uow: SqlAlchemyUoW, user_id: uuid.UUID, data: schemas
         await uow.rollback()
         raise HTTPException(status_code=400, detail="Slug already exists") from e
     return ws
+
+async def list_workspaces(uow: SqlAlchemyUoW, user_id: uuid.UUID) -> list[Workspace]:
+    memberships = await uow.workspace_members.list_for_user(user_id)
+    workspaces: list[Workspace] = []
+    for m in memberships:
+        ws = await uow.workspaces.get(m.workspace_id)
+        if ws:
+            workspaces.append(ws)
+    return workspaces
