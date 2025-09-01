@@ -17,24 +17,35 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"  
+      - "5432:5432"
 
-  api:
-    build: .
-    container_name: notion_api
+  backend:
+    build:
+      context: .
+    container_name: notion_backend
     restart: unless-stopped
     environment:
       DATABASE_URL: "postgresql+psycopg://app:app@db:5432/notion_local"
       SECRET_KEY: "dev-secret"
-      AUTO_MIGRATE: "true"  
+      AUTO_MIGRATE: "true"
       PYTHONPATH: /app
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
-    volumes:
-      - ./:/app  
+  # volumes:
+  #   - ./local/backend:/app
+
+  frontend:
+    build:
+      context: ../Notion-fast-api-frontend
+    container_name: notion_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+  # volumes:
+  #   - ./local/frontend:/app
 
 volumes:
   dbdata:

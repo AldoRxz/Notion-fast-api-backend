@@ -7,7 +7,7 @@ from typing import List
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg://app:app@localhost:5432/notion_local"
     SECRET_KEY: str = "dev-secret"
-    FRONTEND_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    FRONTEND_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://192.168.1.43:5173"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
     ENV: str = "dev"
     AUTO_MIGRATE: bool = False
