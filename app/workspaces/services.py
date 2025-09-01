@@ -27,3 +27,14 @@ async def list_workspaces(uow: SqlAlchemyUoW, user_id: uuid.UUID) -> list[Worksp
         if ws:
             workspaces.append(ws)
     return workspaces
+
+async def delete_workspace(uow: SqlAlchemyUoW, user_id: uuid.UUID, workspace_id: uuid.UUID) -> None:
+    ws = await uow.workspaces.get(workspace_id)
+    if not ws:
+        return
+    # Only owner can delete for now
+    membership = await uow.workspace_members.get_by_workspace_user(workspace_id, user_id)
+    if not membership or membership.role != RoleName.owner:
+        raise HTTPException(status_code=403, detail="Not allowed")
+    await uow.session.delete(ws)
+    await uow.commit()

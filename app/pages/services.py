@@ -8,12 +8,13 @@ from . import schemas
 
 async def create_page(uow: SqlAlchemyUoW, user_id: uuid.UUID, data: schemas.PageCreateIn) -> Page:
     await ensure_workspace_member(data.workspace_id, user_id, uow)
+    # print(f"[create_page] workspace={data.workspace_id} title={data.title!r} type={data.type!r} parent={data.parent_page_id}")
     page = Page(
         id=uuid.uuid4(),
         workspace_id=data.workspace_id,
         parent_page_id=data.parent_page_id,
         title=data.title,
-    type=data.type,
+        type=data.type,  
         created_by=user_id,
         updated_by=user_id,
     )
@@ -27,7 +28,10 @@ async def create_page(uow: SqlAlchemyUoW, user_id: uuid.UUID, data: schemas.Page
 async def get_pages(uow: SqlAlchemyUoW, workspace_id: uuid.UUID, user_id: uuid.UUID) -> list[Page]:
     await ensure_workspace_member(workspace_id, user_id, uow)
     res = await uow.session.execute(select(Page).where(Page.workspace_id == workspace_id, Page.is_archived == False))  # type: ignore
-    return list(res.scalars().all())
+    pages = list(res.scalars().all())
+    if pages:
+        print('[get_pages]', [(p.title, p.type, p.parent_page_id) for p in pages])
+    return pages
 
 async def get_page(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uuid.UUID) -> Page:
     page = await uow.pages.get(page_id)

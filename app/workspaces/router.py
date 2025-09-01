@@ -13,3 +13,8 @@ async def create(dto: schemas.WorkspaceCreateIn, user_id: uuid.UUID = Depends(ge
 @router.get("/", response_model=list[schemas.WorkspaceRead])
 async def list_my_workspaces(user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):
     return await services.list_workspaces(uow, user_id)
+
+@router.delete("/{workspace_id}")
+async def delete_workspace(workspace_id: uuid.UUID, user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):
+    await services.delete_workspace(uow, user_id, workspace_id)
+    return {"status": "deleted"}
