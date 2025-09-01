@@ -14,9 +14,16 @@ async def create(dto: schemas.PageCreateIn, user_id: uuid.UUID = Depends(get_cur
 async def list_pages(workspace_id: uuid.UUID, user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):
     return await services.get_pages(uow, workspace_id, user_id)
 
-@router.get("/{page_id}", response_model=schemas.PageRead)
+@router.get("/{page_id}", response_model=schemas.PageWithContent)
 async def get_page(page_id: uuid.UUID, user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):
-    return await services.get_page(uow, page_id, user_id)
+    page, content = await services.get_page(uow, page_id, user_id)
+    return schemas.PageWithContent(
+        id=page.id,
+        title=page.title,
+        parent_page_id=page.parent_page_id,
+        type=page.type,
+        content=content.content if content else None,
+    )
 
 @router.put("/{page_id}", response_model=schemas.PageRead)
 async def update_page(page_id: uuid.UUID, dto: schemas.PageUpdateIn, user_id: uuid.UUID = Depends(get_current_user_id), uow: SqlAlchemyUoW = Depends(get_uow)):

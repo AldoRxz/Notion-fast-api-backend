@@ -34,8 +34,8 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
-  # volumes:
-  #   - ./local/backend:/app
+    volumes:
+      - ./:/app
 
   frontend:
     build:
@@ -44,8 +44,11 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
-  # volumes:
-  #   - ./local/frontend:/app
+    volumes:
+      # Mount frontend project for Vite HMR so no rebuild needed
+      - ../Notion-fast-api-frontend:/app
+      # Preserve node_modules from image (optional); comment out if issues
+      - /app/node_modules
 
 volumes:
   dbdata:

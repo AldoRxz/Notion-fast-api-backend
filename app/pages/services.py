@@ -33,12 +33,13 @@ async def get_pages(uow: SqlAlchemyUoW, workspace_id: uuid.UUID, user_id: uuid.U
         print('[get_pages]', [(p.title, p.type, p.parent_page_id) for p in pages])
     return pages
 
-async def get_page(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uuid.UUID) -> Page:
+async def get_page(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uuid.UUID) -> tuple[Page, PageContent | None]:
     page = await uow.pages.get(page_id)
     if not page or page.is_archived:
         raise NotFoundError("Page not found")
     await ensure_workspace_member(page.workspace_id, user_id, uow)
-    return page
+    existing = await uow.page_contents.get_by_page(page.id)
+    return page, existing
 
 async def update_page(uow: SqlAlchemyUoW, page_id: uuid.UUID, user_id: uuid.UUID, data: schemas.PageUpdateIn) -> Page:
     page = await uow.pages.get(page_id)

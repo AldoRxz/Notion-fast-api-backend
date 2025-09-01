@@ -17,6 +17,9 @@ class PageRead(BaseModel):
     class Config:
         from_attributes = True
 
+class PageWithContent(PageRead):
+    content: Any | None = None
+
 class PageUpdateIn(PageCreateIn):
     workspace_id: uuid.UUID
 
