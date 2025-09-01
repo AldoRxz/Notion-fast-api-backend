@@ -12,6 +12,8 @@ class PageCreateIn(BaseModel):
 class PageRead(BaseModel):
     id: uuid.UUID
     title: str
+    parent_page_id: uuid.UUID | None = None
+    type: str = "page"
     class Config:
         from_attributes = True
 

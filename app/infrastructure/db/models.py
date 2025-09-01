@@ -20,6 +20,7 @@ class RoleName(str, PyEnum):
 class PageType(str, PyEnum):
 	page = "page"
 	database = "database"
+	folder = "folder"
 
 
 class User(Base, TimestampMixin):
