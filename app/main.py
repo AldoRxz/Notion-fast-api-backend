@@ -12,7 +12,9 @@ app = FastAPI(title="Notion-like Backend")
 
 app.add_middleware(
     CORSMiddleware,
+    # Explicit list from settings (e.g., 5173, 3000) plus a regex to match any localhost port Vite may choose (5174, 5175, etc.)
     allow_origins=settings.origins_list,
+    allow_origin_regex=r"http://localhost:\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
